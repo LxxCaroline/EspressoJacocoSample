@@ -1,0 +1,77 @@
+apply plugin: 'com.android.application'
+apply plugin:'jacoco'
+
+jacoco{
+    toolVersion "0.7.4.201502262128"
+}
+
+android {
+    compileSdkVersion 15
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        applicationId "com.example.hzlinxuanxuan.espressojacocosample"
+        minSdkVersion 9
+        targetSdkVersion 15
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "com.example.hzlinxuanxuan.espressojacocosample.JUnitJacocoTestRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug{
+            testCoverageEnabled true
+        }
+    }
+    packagingOptions {
+        exclude 'LICENSE.txt'
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    debugCompile project(path: ':mylibrary', configuration: 'debug')
+    releaseCompile project(path: ':mylibrary', configuration: 'release')
+    // Testing-only dependencies
+    androidTestCompile 'com.android.support.test:runner:0.3'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2'
+    compile files('libs/junit-4.12.jar')
+}
+
+task jacocoTestReport(type:JacocoReport,dependsOn:"connectedAndroidTest"){
+    group="Reporting"
+    description = "Generate Jacoco coverage reports"
+
+    //exclude auto-generated classes and tests
+    def fileFilter=['**/R.class',
+                    '**/R$*.class',
+                    '**/Manifest*.*',
+                    '**/BuildConfig.*',
+                    'android/**/*.*',
+    ]
+    def debugTree=fileTree(dir:
+            "${rootDir}/mylibrary/build/intermediates/classes/debug",
+            excludes: fileFilter)
+    def sdkSrc="${rootDir}/mylirary/src/main/java"
+
+    //指明对哪个目录下的代码进行绘制覆盖率统计图标
+    sourceDirectories=files([sdkSrc])
+    //指明对哪个目录下的代码进行覆盖率统计
+    classDirectories=files([debugTree])
+    additionalSourceDirs=files([
+            "${buildDir}/generated/source/buildConfig/debug",
+            "${buildDir}/generated/source/r/debug"
+    ])
+    executionData=fileTree(dir:project.projectDir,includes:['**/*.exec','**/*.ec'])
+    reports{
+        xml.enabled=true
+        xml.destination="${buildDir}/jacocoTestReport.xml"
+        csv.enabled=false
+        html.enabled=true
+        html.destination="${buildDir}/reports/jacoco"
+    }
+}
