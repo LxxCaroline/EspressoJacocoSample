@@ -56,7 +56,7 @@ task jacocoTestReport(type:JacocoReport,dependsOn:"connectedAndroidTest"){
     def debugTree=fileTree(dir:
             "${rootDir}/mylibrary/build/intermediates/classes/debug",
             excludes: fileFilter)
-    def sdkSrc="${rootDir}/mylirary/src/main/java"
+    def sdkSrc="${rootDir}/mylibrary/src/main/java"
 
     //指明对哪个目录下的代码进行绘制覆盖率统计图标
     sourceDirectories=files([sdkSrc])
